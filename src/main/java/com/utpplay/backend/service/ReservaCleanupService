@@ -1,0 +1,40 @@
+package com.utpplay.backend.service;
+
+import com.utpplay.backend.model.Reserva;
+import com.utpplay.backend.repository.ReservaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class ReservaCleanupService {
+
+    @Autowired
+    private ReservaRepository reservaRepository;
+
+    /**
+     * Se ejecuta todos los días a las 2:00 AM
+     * Elimina las reservas canceladas hace más de 7 días
+     */
+    @Scheduled(cron = "0 0 2 * * *") // 2:00 AM todos los días
+    public void limpiarReservasCanceladasAntiguae() {
+        LocalDateTime hace7Dias = LocalDateTime.now().minusDays(7);
+
+        // Obtener todas las reservas
+        List<Reserva> todasLasReservas = reservaRepository.findAll();
+
+        // Filtrar las que están canceladas y hace más de 7 días
+        List<Reserva> paraEliminar = todasLasReservas.stream()
+            .filter(r -> "CANCELADA".equals(r.getEstado()) && 
+                        r.getCanceladoEn() != null && 
+                        r.getCanceladoEn().isBefore(hace7Dias))
+            .toList();
+
+        if (!paraEliminar.isEmpty()) {
+            reservaRepository.deleteAll(paraEliminar);
+            System.out.println("✅ ReservaCleanupService: Se eliminaron " + paraEliminar.size() + " reservas canceladas (antigüedad > 7 días)");
+        }
+    }
+}

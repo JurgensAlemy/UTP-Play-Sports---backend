@@ -127,4 +127,22 @@ public class MatchmakingService {
         solicitudRepository.save(solicitud);
         return true;
     }
+
+    // Solo quien envió la conexión puede eliminarla (retirar pendiente o borrar
+    // rechazada/aceptada de su propio historial)
+    public Object eliminarConexion(Long conexionId, String studentId) {
+        Optional<Conexion> conexionOpt = conexionRepository.findById(conexionId);
+        if (conexionOpt.isEmpty()) {
+            return "Conexión no encontrada.";
+        }
+
+        Conexion conexion = conexionOpt.get();
+
+        if (!conexion.getUsuario().getStudentId().equals(studentId.toUpperCase())) {
+            return "No tienes permiso para eliminar esta conexión.";
+        }
+
+        conexionRepository.delete(conexion);
+        return "Conexión eliminada.";
+    }
 }

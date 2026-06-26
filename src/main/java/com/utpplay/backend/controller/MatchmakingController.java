@@ -69,4 +69,16 @@ public class MatchmakingController {
         }
         return ResponseEntity.ok(result);
     }
+
+    @DeleteMapping("/conexiones/{conexionId}/usuario/{studentId}")
+    public ResponseEntity<?> eliminarConexion(@PathVariable Long conexionId, @PathVariable String studentId) {
+        Object result = matchmakingService.eliminarConexion(conexionId, studentId);
+        if (result instanceof String && ((String) result).contains("no encontrad")) {
+            return ResponseEntity.status(404).body(result);
+        }
+        if (result instanceof String && ((String) result).contains("permiso")) {
+            return ResponseEntity.status(403).body(result);
+        }
+        return ResponseEntity.ok(result);
+    }
 }

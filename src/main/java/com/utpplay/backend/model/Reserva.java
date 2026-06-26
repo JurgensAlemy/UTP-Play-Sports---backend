@@ -28,13 +28,20 @@ public class Reserva {
     @Column(nullable = false)
     private String horario;
 
+    @Column(nullable = false)
     private int capacidad;
+
+    @Column(nullable = false)
     private int jugadoresActuales;
 
     @Column(nullable = false)
-    private String estado = "CONFIRMADA";
+    private String estado = "CONFIRMADA"; // CONFIRMADA, CANCELADA
 
+    @Column(nullable = false)
     private LocalDateTime creadoEn = LocalDateTime.now();
+
+    // ✅ NUEVO: Campo para registrar cuándo se canceló
+    private LocalDateTime canceladoEn;
 
     // Getters y Setters
     public Long getId() {
@@ -93,14 +100,6 @@ public class Reserva {
         this.capacidad = capacidad;
     }
 
-    public int getJugadoresActuales() {
-        return jugadoresActuales;
-    }
-
-    public void setJugadoresActuales(int jugadoresActuales) {
-        this.jugadoresActuales = jugadoresActuales;
-    }
-
     public String getEstado() {
         return estado;
     }
@@ -115,5 +114,21 @@ public class Reserva {
 
     public void setCreadoEn(LocalDateTime creadoEn) {
         this.creadoEn = creadoEn;
+    }
+
+    public LocalDateTime getCanceladoEn() {
+        return canceladoEn;
+    }
+
+    public void setCanceladoEn(LocalDateTime canceladoEn) {
+        this.canceladoEn = canceladoEn;
+    }
+
+    public int getJugadoresActuales() {
+        return jugadoresActuales;
+    }
+
+    public void setJugadoresActuales(int jugadoresActuales) {
+        this.jugadoresActuales = jugadoresActuales;
     }
 }

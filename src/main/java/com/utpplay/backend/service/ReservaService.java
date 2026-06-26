@@ -7,6 +7,8 @@ import com.utpplay.backend.repository.ReservaRepository;
 import com.utpplay.backend.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,15 +58,14 @@ public class ReservaService {
     }
 
     public boolean cancelarReserva(Long id, String studentId) {
-        Optional<Reserva> reservaOpt = reservaRepository.findById(id);
-        if (reservaOpt.isEmpty())
+        Reserva reserva = reservaRepository.findById(id).orElse(null);
+        if (reserva == null || !reserva.getUsuario().getStudentId().equals(studentId)) {
             return false;
+        }
 
-        Reserva reserva = reservaOpt.get();
-        if (!reserva.getUsuario().getStudentId().equals(studentId.toUpperCase()))
-            return false;
-
+        // Establecer estado a CANCELADA y registrar la fecha de cancelación
         reserva.setEstado("CANCELADA");
+        reserva.setCanceladoEn(LocalDateTime.now()); // ✅ Registrar cuándo se canceló
         reservaRepository.save(reserva);
         return true;
     }
