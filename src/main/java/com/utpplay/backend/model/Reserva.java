@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "reservas")
 public class Reserva {
@@ -40,7 +43,10 @@ public class Reserva {
     @Column(nullable = false)
     private LocalDateTime creadoEn = LocalDateTime.now();
 
-    // ✅ NUEVO: Campo para registrar cuándo se canceló
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Prestamo> prestamos = new ArrayList<>();
+
+    // Campo para registrar cuándo se canceló
     private LocalDateTime canceladoEn;
 
     // Getters y Setters
@@ -130,5 +136,13 @@ public class Reserva {
 
     public void setJugadoresActuales(int jugadoresActuales) {
         this.jugadoresActuales = jugadoresActuales;
+    }
+
+    public List<Prestamo> getPrestamos() {
+        return prestamos;
+    }
+
+    public void setPrestamos(List<Prestamo> prestamos) {
+        this.prestamos = prestamos;
     }
 }

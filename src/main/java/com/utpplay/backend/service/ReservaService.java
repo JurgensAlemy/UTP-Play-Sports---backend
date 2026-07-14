@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.utpplay.backend.dto.ImplementoSeleccionDTO;
+
 @Service
 public class ReservaService {
 
@@ -20,6 +22,9 @@ public class ReservaService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private ImplementoService implementoService;
 
     public List<Reserva> getReservasByUsuario(String studentId) {
         return reservaRepository.findByUsuario_StudentId(studentId.toUpperCase());
@@ -39,9 +44,16 @@ public class ReservaService {
 
         boolean ocupada = reservaRepository.existsByCanchaAndFechaAndHorario(
                 request.getCancha(), request.getFecha(), request.getHorario());
-
         if (ocupada) {
             return "La cancha ya está reservada en ese horario.";
+        }
+
+        // Validar stock de implementos ANTES de crear la reserva
+        if (request.getImplementos() != null && !request.getImplementos().isEmpty()) {
+            String errorStock = implementoService.validarDisponibilidad(
+                    request.getDeporte(), request.getFecha(), request.getHorario(), request.getImplementos());
+            if (errorStock != null)
+                return errorStock;
         }
 
         Reserva reserva = new Reserva();
@@ -53,8 +65,13 @@ public class ReservaService {
         reserva.setCapacidad(request.getCapacidad());
         reserva.setJugadoresActuales(1);
         reserva.setEstado("CONFIRMADA");
+        reserva = reservaRepository.save(reserva);
 
-        return reservaRepository.save(reserva);
+        if (request.getImplementos() != null && !request.getImplementos().isEmpty()) {
+            implementoService.crearPrestamos(reserva, request.getImplementos());
+        }
+
+        return reserva;
     }
 
     public boolean cancelarReserva(Long id, String studentId) {
@@ -62,11 +79,10 @@ public class ReservaService {
         if (reserva == null || !reserva.getUsuario().getStudentId().equals(studentId)) {
             return false;
         }
-
-        // Establecer estado a CANCELADA y registrar la fecha de cancelación
         reserva.setEstado("CANCELADA");
-        reserva.setCanceladoEn(LocalDateTime.now()); // ✅ Registrar cuándo se canceló
+        reserva.setCanceladoEn(LocalDateTime.now());
         reservaRepository.save(reserva);
+        implementoService.devolverPorReserva(id); // libera pelotas/chalecos de inmediato
         return true;
     }
 }

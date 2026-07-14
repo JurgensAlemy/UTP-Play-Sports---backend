@@ -2,6 +2,9 @@ package com.utpplay.backend.dto;
 
 import java.time.LocalDate;
 
+import java.util.List;
+import com.utpplay.backend.dto.ImplementoSeleccionDTO;
+
 public class ReservaRequest {
     private String studentId;
     private String cancha;
@@ -9,6 +12,8 @@ public class ReservaRequest {
     private LocalDate fecha;
     private String horario;
     private int capacidad;
+
+    private List<ImplementoSeleccionDTO> implementos;
 
     public String getStudentId() {
         return studentId;
@@ -56,5 +61,13 @@ public class ReservaRequest {
 
     public void setCapacidad(int capacidad) {
         this.capacidad = capacidad;
+    }
+
+    public List<ImplementoSeleccionDTO> getImplementos() {
+        return implementos;
+    }
+
+    public void setImplementos(List<ImplementoSeleccionDTO> implementos) {
+        this.implementos = implementos;
     }
 }
