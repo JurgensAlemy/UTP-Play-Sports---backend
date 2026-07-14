@@ -12,10 +12,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.UUID;
 
 import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -89,5 +91,23 @@ public class MensajeController {
         }
         mensajeRepository.deleteById(mensajeId);
         return ResponseEntity.ok("Eliminado.");
+    }
+
+    @GetMapping("/no-leidos/{studentId}")
+    public ResponseEntity<?> getNoLeidos(
+            @PathVariable String studentId,
+            @RequestParam String conexionIds) { // ej: "1,4,9"
+        List<Long> ids = Arrays.stream(conexionIds.split(","))
+                .filter(s -> !s.isBlank())
+                .map(Long::parseLong)
+                .toList();
+        Map<Long, Integer> resultado = mensajeService.getNoLeidosPorConexion(studentId, ids);
+        return ResponseEntity.ok(resultado);
+    }
+
+    @PostMapping("/conexion/{conexionId}/usuario/{studentId}/marcar-leido")
+    public ResponseEntity<?> marcarLeido(@PathVariable Long conexionId, @PathVariable String studentId) {
+        mensajeService.marcarLeido(conexionId, studentId);
+        return ResponseEntity.ok("Marcado como leído.");
     }
 }
