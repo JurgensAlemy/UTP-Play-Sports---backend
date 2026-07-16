@@ -26,7 +26,10 @@ public class ImplementoService {
     private PrestamoRepository prestamoRepository;
 
     private String deporteImplemento(String tipo, String deporteReserva) {
-        return "CHALECO".equalsIgnoreCase(tipo) ? "General" : deporteReserva;
+        boolean esGeneral = "CHALECO".equalsIgnoreCase(tipo)
+                || "SILBATO".equalsIgnoreCase(tipo)
+                || "BOTIQUIN".equalsIgnoreCase(tipo);
+        return esGeneral ? "General" : deporteReserva;
     }
 
     public List<DisponibilidadImplementoDTO> getDisponibilidad(String deporte, LocalDate fecha, String horario) {

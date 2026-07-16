@@ -10,23 +10,39 @@ import org.springframework.context.annotation.Configuration;
 public class DataSeederConfig {
 
     @Bean
-    CommandLineRunner seedImplementos(ImplementoRepository implementoRepository) {
+    CommandLineRunner seedImplementos(ImplementoRepository repo) {
         return args -> {
-            if (implementoRepository.count() == 0) {
-                String[] deportes = { "Fútbol", "Básquetbol", "Vóley", "Tenis" };
-                for (String d : deportes) {
-                    Implemento pelota = new Implemento();
-                    pelota.setTipo("PELOTA");
-                    pelota.setDeporte(d);
-                    pelota.setStockTotal(5);
-                    implementoRepository.save(pelota);
-                }
-                Implemento chalecos = new Implemento();
-                chalecos.setTipo("CHALECO");
-                chalecos.setDeporte("General");
-                chalecos.setStockTotal(10);
-                implementoRepository.save(chalecos);
-            }
+            if (repo.count() > 0)
+                return;
+
+            // Generales — compartidos por todos los deportes
+            seed(repo, "CHALECO", "General", 10);
+            seed(repo, "SILBATO", "General", 3);
+            seed(repo, "BOTIQUIN", "General", 2);
+
+            // Fútbol
+            seed(repo, "PELOTA", "Fútbol", 5);
+            seed(repo, "CONO", "Fútbol", 20);
+
+            // Básquetbol
+            seed(repo, "PELOTA", "Básquetbol", 5);
+            seed(repo, "CRONOMETRO", "Básquetbol", 2);
+
+            // Vóley
+            seed(repo, "PELOTA", "Vóley", 5);
+            seed(repo, "RED", "Vóley", 2);
+
+            // Tenis
+            seed(repo, "PELOTA", "Tenis", 8);
+            seed(repo, "RAQUETA", "Tenis", 6);
         };
+    }
+
+    private void seed(ImplementoRepository repo, String tipo, String deporte, int stock) {
+        Implemento i = new Implemento();
+        i.setTipo(tipo);
+        i.setDeporte(deporte);
+        i.setStockTotal(stock);
+        repo.save(i);
     }
 }
